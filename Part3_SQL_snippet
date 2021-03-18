@@ -5,3 +5,15 @@ SELECT * FROM `orders`
        SELECT id FROM `bookings`)
    AND day_key >= (SELECT MIN(DATE(created_at))
        FROM `bookings`)
+
+--First of all, I don't see the create table statement. I will assume that for the sake of this exercise, we're interested in the dataset, 
+--not the DDL of the table, so let's move on
+--I would write the above like this:
+SELECT a.* FROM `orders` a inner join `bookings` b on (a.vendor_id = b.id and a.day_key >= created_at)
+where a.brand = 'EF_GR'
+--The reason is that I think it's an error to simply say
+--   day_key >= (SELECT MIN(DATE(created_at)) FROM `bookings`)
+--because that will consider all records from `booking`, not only the ones related to the given vendor_id.
+--Apart from that, I always prefer joins over the IN () clause.
+
+
