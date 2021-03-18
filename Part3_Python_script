@@ -1,0 +1,60 @@
+import pandas as pd
+
+#Why do we print the pd version? I would comment this out
+#   print(pd.__version__)
+
+#Instead of using the variables city_names and population, we could assign the following two:
+#   city_names = pd.Series(['San Francisco', 'San Jose', 'Sacramento'])
+#   population = pd.Series([852469, 1015785, 485199])
+#like this:
+cities_population_dataframe = pd.DataFrame({ 'City name': ['San Francisco', 'San Jose', 'Sacramento'], 'Population': [852469, 1015785, 485199] })
+
+#Why should we save the description of the dataframe in the variable instead of the dataframe itself??
+#   cities_population_dataframe = pd.DataFrame({ 'City name': city_names, 'Population': population }).describe()
+#Instead, saving the dataframe itself would be more useful, like this:
+#   cities_population_dataframe = pd.DataFrame({ 'City name': city_names, 'Population': population })
+
+#The following dataframe is not used anywhere, why do we need it? I would simply remove it
+#even though, within the context of the course, it's a good example of how to load data from csv:
+#   california_housing_dataframe = pd.read_csv("https://download.mlcc.google.com/mledu-datasets/california_housing_train.csv", sep=",")
+
+#The following prints are commented out, anyway. I would just make a slight 
+#change of not mixing the prints of the dataframes like A/B/A, but I would use consecutive prints like A/A/B 
+#- that's IF we really needed those two dataframes
+#print(california_housing_dataframe.describe())
+#print(cities_population_dataframe.describe())
+#print(california_housing_dataframe.head())
+
+
+#This is another definition of the same dataframe as in cities_population_dataframe. Why use another one?
+#   cities = pd.DataFrame({ 'City name': city_names, 'Population': population })
+#So, I would keep using the cities_population_dataframe defined above
+#and instead of the following two prints:
+#   print(cities['City name'])
+#   print(cities['Population'])
+#I would simply use the following:
+print(cities_population_dataframe)
+
+#So, instead of using the cities dataframe to add the new column 'Area square miles':
+#   cities['Area square miles'] = pd.Series([46.87, 176.53, 97.92])
+#let's use the already defined one:
+cities_population_dataframe['Area square miles'] = pd.Series([46.87, 176.53, 97.92])
+#and instead of using apply here:
+#   cities['Is wide and has saint name'] = (cities['Area square miles'] > 50) & cities['City name'].apply(lambda name: name.startswith('San'))
+#let's make it simpler and compare 'san' in lowercase:
+cities_population_dataframe['Is wide and has saint name'] = (cities_population_dataframe['Area square miles'] > 50) & \
+(cities_population_dataframe['City name'].str.lower()).str.startswith('san')
+#Finally, instead of this:
+#   cities['Is san francisco'] = (cities['City name'] == 'San Francisco')
+#let's compare the city name in uppercase (just for a change :-) )
+cities_population_dataframe['Is San Francisco'] = (cities_population_dataframe['City name'].str.upper() == 'SAN FRANCISCO')
+
+#Also, replace this:
+#   print (cities)
+#with this:
+print (cities_population_dataframe)
+
+#Finally, the following code
+#   print(cities.reindex([2, 0, 1]))
+#probably tries to make some kind of sorting, maybe according to City Name or Population. I would do something like this, instead:
+print (cities_population_dataframe.sort_values(by=['City name']))
