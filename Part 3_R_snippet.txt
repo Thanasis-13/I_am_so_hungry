@@ -1,0 +1,82 @@
+I'm afraid I don't know R. But I do like getting the job done, so if I this was a real task to be solved, I would definitely do the same as I did now: ask for help.
+To be precise, I'd "hire" maybe the best data scientist I've had the pleasure to have worked with, George Pipis.
+
+What follows is 100% George.
+
+
+
+
+
+#First we are going to set up probability distributions for our beliefs about the inputs
+#We've been told ARPU is about £7 and it's very unlikely to be higher than £10 or lower than £4
+#So we'll go for a normal distribution centered at 7 with 2.5% and 97.5% quantiles at 4 and 10
+
+# I changed the comment. If we want the 5% and the 95% quantiles at 4 and 10
+# then we should take the qnorm(0.95) = 1.644854 instead of the qnorm(0.975)=1.96.
+# I changed the 1.96 to qnorm(0.975) so that to be more clear of what we are doing
+#Show how we get the variance and the 3 to (10-7)
+
+arpu.sd<-(10-7)/qnorm(0.975)
+x<-seq(0, 15,by=0.5)
+d<-dnorm(x, 7, arpu.sd)
+plot(x, d, type='l')
+
+
+#Do the same for acquisition and churn
+
+# Again I changed the 1.96 to qnorm(0.975)
+# We assume that the acquistion follows the normal distribution (0.05, acq.sd)
+
+acq.sd<-0.02/1.96
+x<-seq(0, 0.2,by=0.001)
+d<-dnorm(x, 0.05, acq.sd)
+plot(x, d, type='l')
+
+# We assume that the churn follows the normal distribution (0.02, ch.sd)
+ch.sd<-0.01/1.96
+x<-seq(0, 0.2,by=0.001)
+d<-dnorm(x, 0.02, ch.sd)
+plot(x, d, type='l')
+
+
+
+#I'm to lazy to do the maths for this so I'll write a function
+# we assume 50000 customers
+# we can avoid the for-loop of the 12 steps 
+# where (I assume that 12 steps referred to the 12 months i.e one year)
+# we can say that at the end of the year the number of customers would be
+# n.cust*(1+acq-ch)^12
+
+n.cust<-50000
+
+
+
+revenue<-function(arpu, acq, ch, n.cust){
+  
+  num.cust<-n.cust*(1+acq-ch)^12
+  
+  return(num.cust*arpu)
+  
+}
+
+
+
+#Now let's simulate 10k values from each of our distributions
+# set a seed so that to be reproducible
+
+set.seed(5)
+
+sim.arpu<-rnorm(10000, 7, arpu.sd)
+sim.acq<-rnorm(10000, 0.05, acq.sd)
+sim.ch<-rnorm(10000, 0.02, ch.sd)
+
+
+# add the n.csut to the mapply function
+sim.rev<-mapply(revenue, sim.arpu, sim.acq, sim.ch, n.cust)
+
+summary(sim.rev)
+#    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 40207  412940  495156  502703  586915 1099562 
+
+hist(sim.rev)
+plot(density(sim.rev))
